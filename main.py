@@ -150,12 +150,12 @@ def main():
                 os.makedirs("Output", exist_ok=True)
                 merged_df.to_csv(output_path, encoding="UTF-8", index=False)
 
-                with open(output_path, "rb") as file:
-                    st.download_button(
-                        label="紐付けされたデータをダウンロード",
-                        data=file,
-                        file_name=f"{game_id}_gamedata_jwl.csv",
-                        mime="text/csv",
+                # ファイルを開かずにダイレクトにダウンロードボタンを作成
+                st.download_button(
+                    label="紐付けされたデータをダウンロード",
+                    data=merged_df.to_csv(index=False, encoding="UTF-8"),
+                    file_name=f"{game_id}_gamedata_jwl.csv",
+                    mime="text/csv"
                     )
 
 
