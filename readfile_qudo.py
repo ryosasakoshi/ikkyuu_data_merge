@@ -62,6 +62,7 @@ def read_qudo(game_id, filepath_qudo=None):
         df_qudo["pitches_of_pa"] = df_qudo["pitchCount"] + 1
 
         df_qudo = df_qudo[df_qudo["batterIndex"] != 99]
+        df_qudo = df_qudo[df_qudo["sessinonId"] != 0]
         print(df_qudo.head())
 
         df_qudo = df_qudo[
