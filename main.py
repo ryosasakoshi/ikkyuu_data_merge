@@ -7,7 +7,7 @@ import add_video_url
 import os
 
 
-def merge_game_data(game_id, filepath_ikkyu, filepath_qd,youtube_id, start_timestamp):
+def merge_game_data(game_id, filepath_ikkyu, filepath_qd, youtube_id, start_timestamp):
     """
     ゲームデータを結合する関数
 
@@ -26,9 +26,6 @@ def merge_game_data(game_id, filepath_ikkyu, filepath_qd,youtube_id, start_times
         ikkyu_df = readfile_ikkyu.read_ikkyu(game_id, filepath_ikkyu)
         print(ikkyu_df)
         st.write(f"一球速報データ: {ikkyu_df.shape}")
-
-        # # Qudoのファイルを読み込む
-        # qd_df = readfile_qudo.read_qudo(game_id, filepath_qd)
 
         # QUDOデータの読み込み（ファイルがある場合のみ）
         qd_df = None
@@ -61,18 +58,29 @@ def merge_game_data(game_id, filepath_ikkyu, filepath_qd,youtube_id, start_times
             how="left",
         ).reset_index(drop=True)
 
-        df_gamedata["timestamp"] = df_gamedata["timestamp"].replace("窶ｯ"," ", regex=True)
-        df_gamedata = add_video_url.add_video_url(df_gamedata, youtube_id, start_timestamp)
+        # Check if merge changed the number of rows
+        if len(df_gamedata) != len(ikkyu_df):
+            st.warning(f"警告: マージ後の行数が変更されました。元の行数: {len(ikkyu_df)}, マージ後の行数: {len(df_gamedata)}")
 
-        st.write(f"Youtube タイムスタンプ: {df_gamedata["youtube_timestamp"].shape}")
+        df_gamedata["timestamp"] = df_gamedata["timestamp"].replace(
+            "窶ｯ", " ", regex=True
+        )
+        df_gamedata = add_video_url.add_video_url(
+            df_gamedata, youtube_id, start_timestamp
+        )
 
+        # Check if adding video URLs changed the number of rows
+        if len(df_gamedata) != len(ikkyu_df):
+            st.warning(f"警告: タイムスタンプ追加後の行数が変更されました。元の行数: {len(ikkyu_df)}, 現在の行数: {len(df_gamedata)}")
+
+        st.write(f"Youtube タイムスタンプ: {df_gamedata['youtube_timestamp'].shape}")
 
         return df_gamedata
+
 
     except Exception as e:
         st.error(f"データのマージ中にエラーが発生しました: {e}")
         return None
-
 
 
 def main():
