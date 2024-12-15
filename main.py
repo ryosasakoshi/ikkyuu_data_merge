@@ -68,12 +68,11 @@ def merge_game_data(game_id, filepath_ikkyu, filepath_qd, youtube_id, start_time
         df_gamedata = add_video_url.add_video_url(
             df_gamedata, youtube_id, start_timestamp
         )
-
+        st.write(f"Youtube タイムスタンプ: {df_gamedata.shape}")
+        
         # Check if adding video URLs changed the number of rows
         if len(df_gamedata) != len(ikkyu_df):
             st.warning(f"警告: タイムスタンプ追加後の行数が変更されました。元の行数: {len(ikkyu_df)}, 現在の行数: {len(df_gamedata)}")
-
-        st.write(f"Youtube タイムスタンプ: {df_gamedata['youtube_timestamp'].shape}")
 
         return df_gamedata
 
