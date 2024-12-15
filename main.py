@@ -83,7 +83,7 @@ def merge_game_data(game_id, filepath_ikkyu, filepath_qd, youtube_id, start_time
 
 
 def main():
-    st.title("ゲームデータ結合アプリ")
+    st.title("Ikkyu-QoDO")
 
     # 入力セクション
     col1, col2 = st.columns(2)
