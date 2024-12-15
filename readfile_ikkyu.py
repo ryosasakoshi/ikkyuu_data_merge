@@ -22,6 +22,9 @@ def read_ikkyu(game_id, filepath_ikkyu):
         print(f"DataFrame shape: {df_ikkyu.shape}")
         print(df_ikkyu.head())
 
+        df_ikkyu = df_ikkyu[df_ikkyu["pitched_result"]!="投手牽制"]
+        df_ikkyu = df_ikkyu[df_ikkyu["pitched_result"]!="捕手牽制"]
+
         # Add game_id column
         df_ikkyu.insert(0, "game_id", game_id)
 
