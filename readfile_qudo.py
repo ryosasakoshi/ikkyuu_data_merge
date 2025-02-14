@@ -41,19 +41,21 @@ def read_qudo(game_id, filepath_qudo=None):
     # Take the first matching file
     file_path = matching_files[0]
     
-    
+        
     try:
-        # CSVファイルを読み込む
+        # CSVファイルをShift-JISで読み込む
         df_qudo = pd.read_csv(file_path, engine='python', encoding="shift-jis")
     
-        # ナロースペース (U+202F) を半角スペース (U+0020) に変換
+        # ナロースペース (U+202F) を通常の半角スペースに変換
         df_qudo["timestamp"] = df_qudo["timestamp"].str.replace("\u202F", " ", regex=True)
     
         # 文字化け「窶ｯPM」を「 PM」に修正
         df_qudo["timestamp"] = df_qudo["timestamp"].replace("窶ｯPM", " PM", regex=True)
     
-        # 0時台の "PM" だけを "12:XX AM" に修正 (AM のデータには影響しない)
-        df_qudo["timestamp"] = df_qudo["timestamp"].replace(
+        # AM を含むデータは変更せず、PM を含むデータだけ修正
+        mask_pm = df_qudo["timestamp"].str.contains(" PM", na=False)
+        
+        df_qudo.loc[mask_pm, "timestamp"] = df_qudo.loc[mask_pm, "timestamp"].replace(
             r"\b0:(\d{2}:\d{2}) PM\b", r"12:\1 AM", regex=True
         )
     
@@ -65,12 +67,12 @@ def read_qudo(game_id, filepath_qudo=None):
         df_qudo["timestamp"] = pd.to_datetime(df_qudo["timestamp"], format="%Y-%m-%d %I:%M:%S %p", errors="coerce")
     
         # 変換後のデータを確認（デバッグ用）
-        # print("Converted timestamps:")
-        # print(df_qudo["timestamp"].head())
+        print("Converted timestamps:")
+        print(df_qudo["timestamp"].head())
     
         # Print file info for debugging
-        # print(f"Read file: {file_path}")
-        # print(f"DataFrame shape: {df_qudo.shape}")
+        print(f"Read file: {file_path}")
+        print(f"DataFrame shape: {df_qudo.shape}")
     
         df_qudo["inn"] = df_qudo["inning"].astype(str).str[0]
         df_qudo["top_bottom"] = df_qudo["inning"].astype(str).str[1]
@@ -86,10 +88,6 @@ def read_qudo(game_id, filepath_qudo=None):
     
         # 変換後のデータを確認
         print(df_qudo.head())
-
-
-
-
 
         df_qudo = df_qudo[
             [
