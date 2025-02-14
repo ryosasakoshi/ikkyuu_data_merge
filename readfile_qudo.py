@@ -41,20 +41,19 @@ def read_qudo(game_id, filepath_qudo=None):
     # Take the first matching file
     file_path = matching_files[0]
     
-        
     try:
         # CSVファイルをShift-JISで読み込む
         df_qudo = pd.read_csv(file_path, engine='python', encoding="shift-jis")
     
-        # ナロースペース (U+202F) を通常の半角スペースに変換
+        # ナロースペース (U+202F) を通常の半角スペース (U+0020) に変換
         df_qudo["timestamp"] = df_qudo["timestamp"].str.replace("\u202F", " ", regex=True)
     
-        # 文字化け「窶ｯPM」を「 PM」に修正
+        # 文字化け「窶ｯPM」「窶ｯAM」を修正
         df_qudo["timestamp"] = df_qudo["timestamp"].replace("窶ｯPM", " PM", regex=True)
+        df_qudo["timestamp"] = df_qudo["timestamp"].replace("窶ｯAM", " AM", regex=True)
     
-        # AM を含むデータは変更せず、PM を含むデータだけ修正
+        # PM のデータのみ修正し、AM のデータはそのまま
         mask_pm = df_qudo["timestamp"].str.contains(" PM", na=False)
-        
         df_qudo.loc[mask_pm, "timestamp"] = df_qudo.loc[mask_pm, "timestamp"].replace(
             r"\b0:(\d{2}:\d{2}) PM\b", r"12:\1 AM", regex=True
         )
@@ -88,6 +87,7 @@ def read_qudo(game_id, filepath_qudo=None):
     
         # 変換後のデータを確認
         print(df_qudo.head())
+
 
         df_qudo = df_qudo[
             [
