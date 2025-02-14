@@ -43,10 +43,10 @@ def read_qudo(game_id, filepath_qudo=None):
     
     
     try:
-        # csvファイルを読み込む
+        # CSVファイルを読み込む
         df_qudo = pd.read_csv(file_path, engine='python', encoding="shift-jis")
     
-        # ナロースペース (U+202F) を通常のスペースに変換
+        # ナロースペース (U+202F) を半角スペース (U+0020) に変換
         df_qudo["timestamp"] = df_qudo["timestamp"].str.replace("\u202F", " ", regex=True)
     
         # 文字化け「窶ｯPM」を「 PM」に修正
@@ -57,11 +57,16 @@ def read_qudo(game_id, filepath_qudo=None):
             r"\b0:(\d{2}:\d{2}) PM\b", r"12:\1 AM", regex=True
         )
     
-        # 変換結果を確認 (デバッグ用)
-        print("Unique timestamps before conversion:", df_qudo["timestamp"].unique())
+        # 変換前のデータを確認（デバッグ用）
+        print("Unique timestamps before conversion:")
+        print(df_qudo["timestamp"].unique())
     
         # timestamp を datetime に変換
-        df_qudo["timestamp"] = pd.to_datetime(df_qudo["timestamp"], errors="coerce")
+        df_qudo["timestamp"] = pd.to_datetime(df_qudo["timestamp"], format="%Y-%m-%d %I:%M:%S %p", errors="coerce")
+    
+        # 変換後のデータを確認（デバッグ用）
+        # print("Converted timestamps:")
+        # print(df_qudo["timestamp"].head())
     
         # Print file info for debugging
         # print(f"Read file: {file_path}")
