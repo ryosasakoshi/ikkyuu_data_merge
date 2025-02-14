@@ -40,8 +40,8 @@ def read_qudo(game_id, filepath_qudo=None):
 
     # Take the first matching file
     file_path = matching_files[0]
-
-
+    
+    
     try:
         # csvファイルを読み込む
         df_qudo = pd.read_csv(file_path, engine='python', encoding="shift-jis")
@@ -49,20 +49,23 @@ def read_qudo(game_id, filepath_qudo=None):
         # ナロースペース (U+202F) を通常のスペースに変換
         df_qudo["timestamp"] = df_qudo["timestamp"].str.replace("\u202F", " ", regex=True)
     
-        # 「窶ｯPM」の修正
+        # 文字化け「窶ｯPM」を「 PM」に修正
         df_qudo["timestamp"] = df_qudo["timestamp"].replace("窶ｯPM", " PM", regex=True)
     
-        # 0時台のPMを修正 ("0:XX:YY PM" → "12:XX:YY AM")
+        # 0時台の "PM" だけを "12:XX AM" に修正 (AM のデータには影響しない)
         df_qudo["timestamp"] = df_qudo["timestamp"].replace(
-            r"\b0:(\d+:\d+) PM\b", r"12:\1 AM", regex=True
+            r"\b0:(\d{2}:\d{2}) PM\b", r"12:\1 AM", regex=True
         )
+    
+        # 変換結果を確認 (デバッグ用)
+        print("Unique timestamps before conversion:", df_qudo["timestamp"].unique())
     
         # timestamp を datetime に変換
         df_qudo["timestamp"] = pd.to_datetime(df_qudo["timestamp"], errors="coerce")
     
         # Print file info for debugging
-        print(f"Read file: {file_path}")
-        print(f"DataFrame shape: {df_qudo.shape}")
+        # print(f"Read file: {file_path}")
+        # print(f"DataFrame shape: {df_qudo.shape}")
     
         df_qudo["inn"] = df_qudo["inning"].astype(str).str[0]
         df_qudo["top_bottom"] = df_qudo["inning"].astype(str).str[1]
@@ -76,7 +79,10 @@ def read_qudo(game_id, filepath_qudo=None):
         df_qudo = df_qudo[df_qudo["batterIndex"] != 99]
         df_qudo = df_qudo[df_qudo["sessionId"] != 0]
     
+        # 変換後のデータを確認
         print(df_qudo.head())
+
+
 
 
 
